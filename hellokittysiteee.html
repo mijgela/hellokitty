@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evet mi Hayır mı? 💘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#ffc1e3;    /* Pastel pembe */
+      --bg2:#fff0f7;    /* Açık beyaz-pembe */
+      --card:#ffffffcc;
+      --text:#0f172a;
+      --accent:#ff4d9d; /* EVET butonu pembe */
+      --danger:#ef4444;
+      --muted:#64748b;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:"Poppins",sans-serif;
+      color:var(--text);
+      background:linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+    }
+
+    /* CUSTOM CURSOR - yerel dosya: images/cursor.png veya images/cursor.cur */
+    /* hotspot: 16 16 (orta nokta). İstersen burayı değiştir */
+    body, .btn { cursor: url('C:/Users/zeyne/OneDrive/Desktop/hello/hellokitty1') 16 16, auto; }
+    button { cursor: url('C:/Users/zeyne/OneDrive/Desktop/hello/hellokitty1') 16 16, pointer; }
+
+    .wrap{
+      position:relative;
+      z-index:2;
+      display:grid;
+      place-items:center;
+      height:100%;
+      padding:24px
+    }
+
+    .card{
+      width:min(820px, 92vw);
+      background:var(--card);
+      border-radius:28px;
+      box-shadow:0 20px 60px rgba(0,0,0,.12);
+      padding:40px 32px 32px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    h1{
+      margin:0 0 16px;
+      font-size:clamp(28px, 5.2vw, 46px);
+      line-height:1.1
+    }
+
+    p.subtitle{
+      margin:0 0 28px;
+      color:var(--muted);
+      font-weight:400
+    }
+
+    .buttons{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:center;
+      margin-top:8px;
+      flex-wrap:wrap
+    }
+
+    .btn{
+      cursor:pointer;
+      border:none;
+      border-radius:16px;
+      padding:14px 22px;
+      font-size:18px;
+      font-weight:700;
+      transition:transform .22s ease, box-shadow .22s ease
+    }
+
+    .btn:active{transform:scale(.98)}
+
+    .btn-yes{
+      background:var(--accent);
+      color:white;
+      box-shadow:0 12px 24px rgba(255,77,157,.35);
+      transform:scale(var(--yes-scale,1));
+    }
+
+    .btn-no{
+      background:white;
+      color:var(--danger);
+      border:2px solid var(--danger);
+      box-shadow:0 8px 18px rgba(239,68,68,.15);
+      position:relative;
+      transition:all 0.3s ease;
+    }
+
+    .cta{
+      display:none;
+      margin:28px auto 0;
+      padding:16px 26px;
+      font-size:clamp(20px,4.5vw,30px);
+      font-weight:800;
+      border-radius:18px;
+      border:none;
+      color:white;
+      background:linear-gradient(135deg,#ff4d9d,#ff9f1c);
+      box-shadow:0 20px 40px rgba(255,77,157,.35);
+      cursor:pointer;
+      animation:pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.04)}
+    }
+
+    /* Hello Kitty yağmuru */
+    .kitty {
+      position: fixed;
+      top: -100px;
+      width: 60px;
+      pointer-events: none;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); opacity:1; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="card">
+      <h1>Barışalım mı artık? 😊</h1>
+      <p class="subtitle">Kalbini dinle! mijgela💞</p>
+
+      <div class="buttons">
+        <button id="yes" class="btn btn-yes">EVET</button>
+        <button id="no" class="btn btn-no">HAYIR</button>
+      </div>
+
+      <button id="cta" class="cta">BAŞKA ÇAREN YOK! 😍 BAS ARTIK!</button>
+    </div>
+  </div>
+
+  <script>
+    const YOUTUBE_URL = "https://www.youtube.com/watch?v=GmxkNB-QihI&list=RDGmxkNB-QihI&start_radio=1";
+    const MAX_SCALE = 2.4;
+    const HOVER_STEP = 0.05;
+    const CLICK_STEP = 0.18;
+    const SHOW_CTA_AFTER = 2.05;
+
+    const btnYes = document.getElementById('yes');
+    const btnNo = document.getElementById('no');
+    const cta = document.getElementById('cta');
+
+    let yesScale = 1;
+    let ctaShown = false;
+
+    function applyScale(){
+      btnYes.style.setProperty('--yes-scale', yesScale.toFixed(3));
+      if(!ctaShown && yesScale >= SHOW_CTA_AFTER){
+        btnYes.style.display = 'none';
+        cta.style.display = 'inline-block';
+        ctaShown = true;
+      }
+    }
+
+    btnNo.addEventListener('mouseenter', ()=>{
+      growYes(HOVER_STEP*2);
+      moveNo();
+    });
+    btnNo.addEventListener('mousemove', ()=>{
+      growYes(HOVER_STEP);
+      moveNo();
+    });
+    btnNo.addEventListener('click', ()=>{
+      growYes(CLICK_STEP);
+      moveNo();
+    });
+
+    btnYes.addEventListener('click', ()=>{
+      window.location.href = YOUTUBE_URL;
+    });
+
+    cta.addEventListener('click', ()=>{
+      window.location.href = YOUTUBE_URL;
+    });
+
+    function growYes(step){
+      yesScale = Math.min(MAX_SCALE, yesScale + step);
+      applyScale();
+    }
+
+    function moveNo(){
+      const randX = (Math.random() - 0.5) * 200;
+      const randY = (Math.random() - 0.5) * 150;
+      btnNo.style.transform = `translate(${randX}px, ${randY}px)`;
+    }
+
+    // Kendi Hello Kitty fotoğraflarını kullan
+    const kittyImages = [
+      "C:/Users/zeyne/OneDrive/Desktop/hello/hellokitty1.png",
+      "C:/Users/zeyne/OneDrive/Desktop/hello/hellokitty2.png",
+      "C:/Users/zeyne/OneDrive/Desktop/hello/hellokitty3.png",
+      "C:/Users/zeyne/OneDrive/Desktop/hello/hellokitty4.png"
+    ];
+
+    function createKitty(){
+      const kitty = document.createElement("img");
+      kitty.src = kittyImages[Math.floor(Math.random() * kittyImages.length)];
+      kitty.classList.add("kitty");
+      kitty.style.left = Math.random() * window.innerWidth + "px";
+      kitty.style.width = (40 + Math.random()*40) + "px";
+      kitty.style.animationDuration = (3 + Math.random()*3) + "s";
+      document.body.appendChild(kitty);
+      setTimeout(()=>kitty.remove(), 6000);
+    }
+
+    setInterval(createKitty, 700);
+
+    applyScale();
+  </script>
+</body>
+</html>
